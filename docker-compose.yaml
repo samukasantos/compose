@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+
+  db:
+    image: mysql:5.7
+    command: --innodb-use-native-aio=0
+    container_name: db
+    tty: true
+    restart: always
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_DATABASE=appdb
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - ./mysql:/var/lib/mysql
+    networks:
+      - codenet
+
+  app:
+    build: ./node
+    container_name: app
+    restart: unless-stopped
+    volumes:
+      - ./node:/usr/app
+    depends_on:
+      - db
+    networks:
+      - codenet
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+    networks:
+      - codenet
+
+networks:
+  codenet:
+    external: true
+     
