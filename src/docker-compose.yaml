@@ -43,5 +43,5 @@ services:
 
 networks:
   codenet:
-    external: true
+    driver: bridge
      
