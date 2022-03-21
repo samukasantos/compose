@@ -12,41 +12,39 @@ const config ={
 app.use(bodyParser.json()); 
 const mysql = require('mysql');
 
+const tableSql = `CREATE TABLE IF NOT EXISTS people(
+                    id int primary key auto_increment,
+                    name varchar(255) not null
+                )`;
+const connection = mysql.createConnection(config);
+connection.query(tableSql);
+connection.end();
+
 app.get('/', (req, res)=>{
 
     const connection = mysql.createConnection(config);
     const sql = `SELECT name FROM people`
 
     let htmlOutput = '<h1>Full cycle Rocks!</h1></br>';
-    htmlOutput += '<ul>';
     connection.query(sql, (err, rows)=>{
-        rows.forEach(row => {
-            htmlOutput += `<li>${row.name}</li>`;
-        });
-        
-        htmlOutput += '</ul>';
-        res.send(htmlOutput);
+		if(rows){
+			htmlOutput += '<ul>';
+			rows.forEach(row => {
+				htmlOutput += `<li>${row.name}</li>`;
+			});
+			
+			htmlOutput += '</ul>';
+			res.send(htmlOutput);	
+		}
+		else{
+			res.send('<h3>Not found records.</h3>');
+		}
     });
     connection.end();
 });
 
-app.get('/people', (req, res)=>{
-    const connection = mysql.createConnection(config);
-    const sql = `SELECT name FROM people`
 
-    let htmlOutput = '<ul>';
-    connection.query(sql, (err, rows)=>{
-        rows.forEach(row => {
-            htmlOutput += `<li>${row.name}</li>`;
-        });
-        
-        htmlOutput += '</ul>';
-        res.send(htmlOutput);
-    });
-    connection.end();
-});
-
-app.post('/people', (req, res)=>{
+app.post('/', (req, res)=>{
     let username=req.body.name;
     const connection = mysql.createConnection(config);
     const sql = `INSERT INTO people(name) VALUES ('${username}')`;
