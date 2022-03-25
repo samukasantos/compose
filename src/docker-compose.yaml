@@ -1,10 +1,10 @@
-version: '3'
+version: '3.6'
 
 services:
 
   db:
     image: mysql:5.7
-    command: --innodb-use-native-aio=0
+    command: --default-authentication-plugin=mysql_native_password
     container_name: db
     tty: true
     restart: always
@@ -14,6 +14,7 @@ services:
       - MYSQL_ROOT_PASSWORD=root
     volumes:
       - ./mysql:/var/lib/mysql
+      - ./init:/docker-entrypoint-initdb.d
     networks:
       - codenet
 
@@ -21,6 +22,8 @@ services:
     build: ./node
     container_name: app
     restart: unless-stopped
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 10s node index.js
+    tty: true
     volumes:
       - ./node:/usr/app
     depends_on:
@@ -43,5 +46,6 @@ services:
 
 networks:
   codenet:
+    name: codenet
     driver: bridge
      

@@ -12,14 +12,6 @@ const config ={
 app.use(bodyParser.json()); 
 const mysql = require('mysql');
 
-const tableSql = `CREATE TABLE IF NOT EXISTS people(
-                    id int primary key auto_increment,
-                    name varchar(255) not null
-                )`;
-const connection = mysql.createConnection(config);
-connection.query(tableSql);
-connection.end();
-
 app.get('/', (req, res)=>{
 
     const connection = mysql.createConnection(config);
@@ -37,7 +29,8 @@ app.get('/', (req, res)=>{
 			res.send(htmlOutput);	
 		}
 		else{
-			res.send('<h3>Not found records.</h3>');
+            htmlOutput += '<h3>Not found records.</h3>';
+			res.send(htmlOutput);
 		}
     });
     connection.end();
